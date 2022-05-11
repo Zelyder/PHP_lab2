@@ -46,15 +46,19 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        return response(Customer::with(['addresses' => function ($q) use ($customerId) {
+
+        $customer = Customer::with(['addresses' => function ($q) {
             $q->where('customer_id', '=', $customerId);
             $q->orderBy('created_at', 'DESC');
-        }])->findOrFail($customerId), 200);
+        }])->findOrFail($id);
+        return view('customer_details', ['customer' => $customer]);
     }
 
     public function  showAll()
     {
-        return response(Customer::all(), 200);
+        $customers = Customers::query();
+        $customers = $customers->orderBy('name', 'asc')->paginate(20)->withQueryString();
+        return view('customers_list', ['customers' => $customers, 'request' => $request]);
     }
 
     /**
